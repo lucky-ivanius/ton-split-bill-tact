@@ -40,6 +40,26 @@ describe('SplitBill', () => {
         // blockchain and splitBill are ready to use
     });
 
+    it('should receive 1 TON', async () => {
+        const treasurer = await blockchain.treasury('treasury');
+        const res = await treasurer.send({
+            to: splitBill.address,
+            value: toNano(1),
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+        });
+
+        console.log({
+            splitBillBalance: fromNano(await splitBill.getBalance()), // TODO: TON is deducted, not exactly 1 TON
+        });
+
+        expect(res.transactions).toHaveTransaction({
+            from: treasurer.address,
+            to: splitBill.address,
+            value: toNano(1),
+            success: true,
+        });
+    });
+
     it('should split the bills', async () => {
         const forwardTo = Address.parse('UQCfu4NxQ4kKtNRgK6aZPZkzxijDGcjfJYw1dEDBb0VkmwN5');
         const wallet = await blockchain.treasury('wallet', { balance: toNano(10) });
